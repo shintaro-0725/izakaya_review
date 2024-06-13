@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shibuya Izakaya List</title>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+    <script>
+        function initMap() {
+            const mapOptions = {
+                center: { lat: 35.658034, lng: 139.701636 }, // 渋谷駅の緯度経度
+                zoom: 14
+            };
+            const map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+            const izakayas = JSON.parse('{{ izakayas_json|escapejs }}');
+            console.log("Izakayas data:", izakayas);
+
+            izakayas.forEach(izakaya => {
+                console.log(`Adding marker for: ${izakaya.name} at (${izakaya.lat}, ${izakaya.lng})`);
+                let marker = new google.maps.Marker({
+                    position: { lat: izakaya.lat, lng: izakaya.lng },
+                    map: map,
+                    title: izakaya.name
+                });
+
+                let infoWindowContent = `<h3>${izakaya.name}</h3>
+                                        <p>${izakaya.address}</p>
+                                        <h4>Reviews:</h4>
+                                        <ul>`;
+                izakaya.reviews.forEach(review => {
+                    infoWindowContent += `<li>Rating: ${review.rating}, Comment: ${review.comment}</li>`;
+                });
+                infoWindowContent += `</ul>`;
+
+                let infoWindow = new google.maps.InfoWindow({
+                    content: infoWindowContent
+                });
+
+                marker.addListener('click', () => {
+                    infoWindow.open(map, marker);
+                });
+
+                // マーカーが地図上に追加されたことを確認
+                console.log(`Marker added for: ${izakaya.name}`);
+            });
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ5gLRlVyYJZNvG3hIwdOtWS3O8xIdj7Q&callback=initMap"></script>
+</head>
+<body>
+    <h1>Shibuya Izakaya List</h1>
+    <div id="map"></div>
+    <ul>
+        {% for izakaya in izakayas %}
+            <li>
+                {{ izakaya.name }} - {{ izakaya.address }}
+                <ul>
+                    {% for review in izakaya.review_set.all %}
+                        <li>Rating: {{ review.rating }}, Comment: {{ review.comment }}</li>
+                    {% endfor %}
+                </ul>
+            </li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

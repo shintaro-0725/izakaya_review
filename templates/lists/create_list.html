@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リスト作成</title>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCQ5gLRlVyYJZNvG3hIwdOtWS3O8xIdj7Q&libraries=places"></script>
+    <script>
+        function initMap() {
+            var map = new google.maps.Map(document.getElementById('map'), {
+                center: {lat: 35.6895, lng: 139.6917},
+                zoom: 13
+            });
+
+            var service = new google.maps.places.PlacesService(map);
+
+            google.maps.event.addListener(map, 'click', function(event) {
+                var request = {
+                    location: event.latLng,
+                    radius: '500',
+                    type: ['restaurant']
+                };
+
+                service.nearbySearch(request, function(results, status) {
+                    if (status == google.maps.places.PlacesServiceStatus.OK) {
+                        for (var i = 0; i < results.length; i++) {
+                            createMarker(results[i]);
+                        }
+                    }
+                });
+            });
+
+            function createMarker(place) {
+                var marker = new google.maps.Marker({
+                    map: map,
+                    position: place.geometry.location
+                });
+
+                google.maps.event.addListener(marker, 'click', function() {
+                    var placeName = place.name;
+                    var placeLat = place.geometry.location.lat();
+                    var placeLng = place.geometry.location.lng();
+                    var listId = document.getElementById('list_id').value;
+
+                    fetch('/lists/add_to_list/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': '{{ csrf_token }}'
+                        },
+                        body: JSON.stringify({
+                            'place_name': placeName,
+                            'place_lat': placeLat,
+                            'place_lng': placeLng,
+                            'list_id': listId
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            var listContainer = document.getElementById('list-container');
+                            var listItem = document.createElement('div');
+                            listItem.textContent = placeName;
+                            listContainer.appendChild(listItem);
+                        } else {
+                            console.error('追加エラー: ', data.reason);
+                            alert('リストに追加できませんでした');
+                        }
+                    });
+                });
+            }
+        }
+
+        function updateListName() {
+            var listNameInput = document.getElementById('list_name_input');
+            var listNameDisplay = document.getElementById('list_name_display');
+            listNameDisplay.textContent = listNameInput.value;
+        }
+
+        function createList() {
+            var listName = document.getElementById('list_name_input').value;
+            var description = document.querySelector('textarea[name="description"]').value;
+            
+            fetch('/lists/create/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    'list_name': listName,
+                    'description': description
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('list_id').value = data.list_id;
+                } else {
+                    alert('リストの作成に失敗しました');
+                }
+            });
+        }
+
+        function saveList() {
+            var listId = document.getElementById('list_id').value;
+            fetch('/lists/save_list/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({
+                    'list_id': listId
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    window.location.href = '/lists/' + listId + '/';
+                } else {
+                    alert('リストの保存に失敗しました');
+                }
+            });
+        }
+    </script>
+</head>
+<body onload="initMap()">
+    <h1>リスト作成</h1>
+    <form method="POST" onsubmit="return false;">
+        {% csrf_token %}
+        <input type="text" name="list_name" id="list_name_input" placeholder="リスト名" oninput="updateListName()">
+        <textarea name="description" placeholder="リストの説明"></textarea>
+        <button type="button" onclick="createList()">リストを作成</button>
+    </form>
+    <h2>リスト名: <span id="list_name_display"></span></h2>
+    <div id="map" style="height: 500px;"></div>
+    <div id="list-container"></div>
+    <button type="button" onclick="saveList()">リストを保存する</button>
+    <input type="hidden" id="list_id" value="">
+</body>
+</html>
