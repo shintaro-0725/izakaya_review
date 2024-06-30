@@ -10,7 +10,7 @@ class Izakaya(models.Model):
         return self.name
 
 class Review(models.Model):
-    izakaya = models.ForeignKey(Izakaya, on_delete=models.CASCADE)
+    izakaya = models.ForeignKey('izakaya_review.Izakaya', on_delete=models.CASCADE)  # 変更点
     rating = models.IntegerField()
     comment = models.TextField()
 

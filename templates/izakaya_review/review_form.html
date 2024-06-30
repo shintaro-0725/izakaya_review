@@ -1,0 +1,8 @@
+{# izakaya_review/templates/izakaya_review/review_form.html #}
+
+<h2>{{ izakaya.name }}へのレビュー</h2>
+<form method="post">
+    {% csrf_token %}  
+    {{ form.as_p }}  
+    <button type="submit">投稿する</button>
+</form>

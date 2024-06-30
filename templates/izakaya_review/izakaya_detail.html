@@ -1,0 +1,10 @@
+<h2>{{ izakaya.name }}</h2>
+
+<h3>レビュー</h3>
+{% for review in izakaya.reviews.all %} 
+<div class="review">
+    <p>評価: {{ review.rating }}</p>
+    <p>{{ review.comment }}</p>
+    <p>投稿者: {{ review.user.username }}</p>
+    <p>投稿日時: {{ review.created_at }}</p>
+</div>
