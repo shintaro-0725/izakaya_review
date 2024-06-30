@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Izakaya, Review
+from izakaya_review.reviews.models import Izakaya, Review  # 絶対インポート
 from .forms import ReviewForm
 
 @login_required  # ログイン必須のデコレーター

@@ -1,15 +1,15 @@
 from django import forms
-from .models import Review
+from izakaya_review.reviews.models import Review  # 絶対インポート
 
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ['rating', 'comment']  # レビューモデルのどのフィールドをフォームに含めるか指定
+        fields = ['rating', 'comment']
         widgets = {
-            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5}),  # 評価の範囲を1〜5に制限
-            'comment': forms.Textarea(attrs={'rows': 4}),  # コメント入力欄のサイズを調整
+            'rating': forms.NumberInput(attrs={'min': 1, 'max': 5}),
+            'comment': forms.Textarea(attrs={'rows': 4}),
         }
         labels = {
             'rating': '評価（5点満点）',
             'comment': 'コメント',
-        }  
+        }
