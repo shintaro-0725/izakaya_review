@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import izakaya_list
+from . import views
 
 urlpatterns = [
-    path('', izakaya_list, name='izakaya_list'),
+    path('izakaya/<int:izakaya_id>/reviews/create/', views.create_review, name='create_review'),
 ]
