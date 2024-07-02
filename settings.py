@@ -1,5 +1,16 @@
+import sys
 from dotenv import load_dotenv
 import os
+
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Virtual Environment Path
+if 'myenv' in BASE_DIR:  # 仮想環境名が myenv の場合
+     VENV_PATH = BASE_DIR[:BASE_DIR.find('myenv')]
+     sys.path.insert(0, VENV_PATH)
+# 追記するコード
+sys.path.append(BASE_DIR)
 
 load_dotenv()  # .env ファイルを読み込む
 
@@ -40,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'izakaya_review.urls'
+ROOT_URLCONF = 'urls'
 
 TEMPLATES = [
     {
